@@ -47,7 +47,6 @@ export const RepositoryTouchble = styled.TouchableHighlight.attrs({
 })``;
 
 export const Stars = styled.FlatList.attrs({
-  ActivityIndicator: true,
   showsVerticalScrollIndicator: false,
 })`
   margin-top: 20px;
