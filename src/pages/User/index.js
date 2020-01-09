@@ -15,7 +15,9 @@ import {
   Title,
   Author,
   Stars,
+  RepositoryTouchble,
 } from './style';
+import { ActivityIndicator } from 'react-native';
 
 export default class User extends React.Component {
   static navigationOptions = ({ navigation }) => ({
@@ -29,25 +31,65 @@ export default class User extends React.Component {
   };
   state = {
     stars: [],
-    loading: false,
+    loading: true,
+    page: 1,
+    refreshing: false,
   };
 
   async componentDidMount() {
+    this.profileRequest();
+  }
+
+  profileRequest = async () => {
     const { navigation } = this.props;
     const user = navigation.getParam('user');
+    const { stars, page } = this.state;
 
-    this.setState({ loading: true });
-
-    const response = await api.get(`/users/${user.login}/starred`);
+    const response = await api.get(`/users/${user.login}/starred?page=${page}`);
 
     this.setState({
-      stars: response.data,
+      stars: page >= 2 ? [...stars, ...response.data] : response.data,
       loading: false,
+      refreshing: false,
     });
-  }
+  };
+
+  loadMore = () => {
+    const { page } = this.state;
+    this.setState(
+      {
+        page: page + 1,
+      },
+      () => {
+        this.profileRequest();
+      }
+    );
+  };
+
+  refreshList = () => {
+    this.setState(
+      {
+        stars: [],
+        page: 1,
+        refreshing: true,
+        loading: true,
+      },
+
+      () => {
+        this.profileRequest();
+      }
+    );
+  };
+
+  handleNavigate = repository => {
+    const { navigation } = this.props;
+
+    navigation.navigate('RepositoryWebView', { repository });
+  };
+
   render() {
     const { navigation } = this.props;
-    const { stars, loading } = this.state;
+    const { stars, loading, refreshing } = this.state;
 
     const user = navigation.getParam('user');
     return (
@@ -64,16 +106,29 @@ export default class User extends React.Component {
           <Stars
             data={stars}
             keyExtractor={star => String(star.id)}
+            onEndReachedThreshold={0.2}
+            onEndReached={this.loadMore}
+            onRefresh={this.refreshList}
+            refreshing={refreshing}
             renderItem={({ item }) => (
-              <Starred>
-                <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
-                <Info>
-                  <Title>{item.name}</Title>
-                  <Author>{item.owner.login}</Author>
-                </Info>
-              </Starred>
+              <RepositoryTouchble onPress={() => this.handleNavigate(item)}>
+                <Starred>
+                  <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
+                  <Info>
+                    <Title>{item.name}</Title>
+                    <Author>{item.owner.login}</Author>
+                  </Info>
+                </Starred>
+              </RepositoryTouchble>
             )}
           />
+        )}
+        {loading == true ? (
+          <ActivityIndicator></ActivityIndicator>
+        ) : (
+          this.setState({
+            loading: true,
+          })
         )}
       </Container>
     );

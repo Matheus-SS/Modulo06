@@ -42,7 +42,12 @@ export const Loading = styled.ActivityIndicator.attrs({
   justify-content: center;
 `;
 
+export const RepositoryTouchble = styled.TouchableHighlight.attrs({
+  underlayColor: '#f5f5f5',
+})``;
+
 export const Stars = styled.FlatList.attrs({
+  ActivityIndicator: true,
   showsVerticalScrollIndicator: false,
 })`
   margin-top: 20px;
@@ -69,7 +74,9 @@ export const Info = styled.View`
   flex: 1;
 `;
 
-export const Title = styled.Text`
+export const Title = styled.Text.attrs({
+  numberOfLines: 1,
+})`
   font-size: 15px;
   font-weight: bold;
   color: #333;
