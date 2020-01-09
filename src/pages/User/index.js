@@ -17,7 +17,6 @@ import {
   Stars,
   RepositoryTouchble,
 } from './style';
-import { ActivityIndicator } from 'react-native';
 
 export default class User extends React.Component {
   static navigationOptions = ({ navigation }) => ({
@@ -122,13 +121,6 @@ export default class User extends React.Component {
               </RepositoryTouchble>
             )}
           />
-        )}
-        {loading == true ? (
-          <ActivityIndicator></ActivityIndicator>
-        ) : (
-          this.setState({
-            loading: true,
-          })
         )}
       </Container>
     );
